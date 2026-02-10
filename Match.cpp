@@ -140,8 +140,10 @@ void Match::TryShoot(bool isHome)
 	GameUtils::ClearScreen();
 	PrintScoreboard();
 
-	float atk = isHome ? HomeTeam.Stat.Shoot : AwayTeam.Stat.Shoot;
-	float def = isHome ? AwayTeam.Stat.Defend : HomeTeam.Stat.Defend;
+	float atk = isHome ? (HomeTeam.Stat.Shoot + HomeTeam.GetFormation().FW) 
+		: (AwayTeam.Stat.Shoot + AwayTeam.GetFormation().FW);
+	float def = isHome ? (AwayTeam.Stat.Defend + AwayTeam.GetFormation().DF) 
+		: (HomeTeam.Stat.Defend + HomeTeam.GetFormation().DF);
 
 	int xG = (atk > def) ? 80 : 20;
 
@@ -262,7 +264,7 @@ void Match::PrintResult()
 {
 	GameUtils::ClearScreen();
 	cout << "\n===== 경기 종료 (Final Score) =====\n";
-	cout << HomeTeam.GetName()<<" " << HomeScore << " : " << AwayScore<<" " << AwayTeam.GetName() << endl;
+	cout << HomeTeam.GetName() << " " << HomeScore << " : " << AwayScore << " " << AwayTeam.GetName() << endl;
 
 	GameUtils::NextScreen();
 }
@@ -321,16 +323,13 @@ void Match::Penalty()
 			<< (awayGoal ? " 골!" : " 실축!") << endl;
 		GameUtils::WaitMs(1000);
 
-		if (homeGoal != awayGoal)
-		{
-			if (homeGoal)  HomePK++;
-			else AwayPK++;
-			break;
-		}
+		if (homeGoal) HomePK++;
+		if (awayGoal) AwayPK++;
+
 		cout << "현재 PK 스코어: "
 			<< HomePK << " - " << AwayPK << endl;
 		GameUtils::WaitMs(1000);
-		
+
 	}
 
 	cout << "===== 승부차기 종료 =====" << endl;
