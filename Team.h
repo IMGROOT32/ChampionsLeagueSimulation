@@ -24,15 +24,16 @@ class Team
 {
 public :
 	Team(string name, Position formation);
-	Team() : Name(""), Formation({0, 0, 0}) {}
+	Team() : Name(""), Formation({ 0, 0, 0 }) {}
+	
 	int CurrentStamina;
-	PlayerStat StartStat;
-	PlayerStat Stat;
 
 	void PlayerBoost();
 	void StaminaLoss();
 	void StatUp();
 
+	PlayerStat StartStat;
+	PlayerStat Stat;
 	string GetName() { return Name; }
 	Position GetFormation() { return Formation; }
 

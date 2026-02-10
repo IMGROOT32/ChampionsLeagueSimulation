@@ -15,6 +15,8 @@ public :
 	void PlayRound(string RoundName);
 	void PrintRoundResults(string RoundName);
 
+	Team GetChampion();
+
 private :
 	vector<Team> Teams;
 	string PlayerName;

@@ -7,11 +7,9 @@ using namespace std;
 class Match
 {
 public :
-	Match(Team& hometeam, Team& awayteam, bool isPlayerMatch);
+	Match(Team hometeam, Team awayteam, bool isPlayerMatch);
 	Team PlayMatch(int StartTime);
 	
-	void Attack(Team& Attacker, Team& Defender);
-
 	bool IsDraw();
 	bool bIsPlayerMatch;
 	bool DecideAttackTeam();
@@ -21,8 +19,9 @@ public :
 	int AwayScore;
 	
 
+	void Attack(Team& FW, Team& DF);
 	void PrintResult();
-	void TryShoot(bool isHomeAttack);
+	void TryShoot(bool isHome);
 	void PlayTurn(int CurrentTime);
 	void Penalty();
 	void PrintScoreboard();
@@ -32,8 +31,8 @@ public :
 	Team GetWinner();
 
 private :
-	Team& HomeTeam;
-	Team& AwayTeam;
+	Team HomeTeam;
+	Team AwayTeam;
 
 };
 

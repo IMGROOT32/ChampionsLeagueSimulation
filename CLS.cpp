@@ -4,6 +4,7 @@
 #include <ctime>
 #include <iomanip>
 #include <limits>
+#include <algorithm>
 #include "Team.h"
 #include "Tournament.h"
 #include "GameUtils.h"
@@ -63,7 +64,9 @@ int main()
 	}
 
 	Position playerFormation;
-	const int RequiredPlayers = 10;
+
+	const int TotalPlayers = 10;
+
 	cout << "[2]" << playerName << "의 포메이션 설정 중 (GK 제외 총 10명)" << endl;
 
 	while (true)
@@ -75,11 +78,11 @@ int main()
 		cout << " FW (공격수) : ";
 		cin >> playerFormation.FW;
 
-		if (playerFormation.FW + playerFormation.MF + playerFormation.DF == RequiredPlayers)
+		if (playerFormation.FW + playerFormation.MF + playerFormation.DF == TotalPlayers)
 		{
 			break;
 		}
-		cout << "합계가 " << RequiredPlayers << " 명이 되어야합니다." << endl;
+		cout << "합계가 " << TotalPlayers << " 명이 되어야합니다." << endl;
 	}
 
 	cin.ignore((numeric_limits<streamsize>::max)(), '\n');
@@ -99,8 +102,22 @@ int main()
 		Position randomForm = AIFormations[rand() % AIFormations.size()];
 		teams.push_back(Team(TournamentTeams[i], randomForm));
 	}
+	random_shuffle(teams.begin(), teams.end());
+
 	GameUtils::ClearScreen();
-	cout << "\n===== 32강 월드컵 토너먼트 대진표 확정 =====" << endl;
+	cout << "===== 32강 월드컵 토너먼트 대진표 확정 =====" << endl;
+
+	cout << "\n========== 32강 대진표 ==========\n";
+
+	for (int i = 0; i + 1 < teams.size(); i += 2)
+	{
+		cout << teams[i].GetName()
+			<< "  VS  "
+			<< teams[i + 1].GetName()
+			<< endl;
+	}
+
+	cout << "=================================\n";
 	Art::KickOffArt();
 	GameUtils::NextScreen();
 
@@ -109,7 +126,9 @@ int main()
 
 	GameUtils::ClearScreen();
 	Art::TrophyArt();
+	Team Champion = ChampionsLeague.GetChampion();
+
 	cout << "==========" << "Last Dance" << "==========" << endl;
-	cout << "========================================" << endl;
+	cout << "최종 우승팀 : " << Champion.GetName() << endl;
 	return 0;
 }

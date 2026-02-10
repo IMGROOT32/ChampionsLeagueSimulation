@@ -14,6 +14,8 @@ void Tournament::StartTournament()
 {
 	string rounds[] = { "32강", "16강", "8강", "4강", "결승" };
 
+	int roundIndex = 0;
+
 	for (int r = 0; r < 5; r++)
 	{
 		if (Teams.size() <= 1)
@@ -44,8 +46,6 @@ void Tournament::PlayRound(string roundName)
 {
 	vector<Team> winners;
 
-	WinnersLog.clear(); 
-
 	for (int i = 0; i + 1 < Teams.size(); i += 2)
 	{
 		Team& A = Teams[i];
@@ -72,7 +72,8 @@ void Tournament::PlayRound(string roundName)
 
 void Tournament::PrintRoundResults(string RoundName)
 {
-	cout << "===== " << RoundName << " 전체 결과 =====" << endl;
+	cout << "===== " << RoundName << " 경기 결과 =====" << endl;
+
 	for (const string& log : WinnersLog)
 	{
 		cout << log << endl;
@@ -81,4 +82,12 @@ void Tournament::PrintRoundResults(string RoundName)
 	WinnersLog.clear();
 	cout << "==============================" << endl;
 	GameUtils::NextScreen();
+}
+
+Team Tournament::GetChampion()
+{
+	if (!Teams.empty())
+		return Teams[0];
+
+	return Team("없음", { 0,0,0 });
 }

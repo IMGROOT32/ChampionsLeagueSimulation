@@ -6,7 +6,7 @@
 
 using namespace std;
 
-Match::Match(Team& hometeam, Team& awayteam, bool isPlayerMatch)
+Match::Match(Team hometeam, Team awayteam, bool isPlayerMatch)
 	: HomeTeam(hometeam), AwayTeam(awayteam), bIsPlayerMatch(isPlayerMatch)
 {
 	HomeScore = 0;
@@ -28,48 +28,56 @@ void Match::PrintScoreboard()
 
 void Match::PlayTurn(int CurrentTime)
 {
-	CurrentMinute = CurrentTime;
+	if (!bIsPlayerMatch)
+	{
+		if (rand() % 100 < 20) HomeScore++;
+		if (rand() % 100 < 20) AwayScore++;
+		return;
+	}
 
 	PrintScoreboard();
 
-	Team* Attacker = DecideAttackTeam() ? &HomeTeam : &AwayTeam;
-	Team* Defender = (Attacker == &HomeTeam) ? &AwayTeam : &HomeTeam;
-
-	cout << "공격 팀 : " << Attacker->GetName() << endl;
-	cout << "수비 팀 : " << Defender->GetName() << endl;
-	GameUtils::WaitMs(1000);
+	bool homeAttack = DecideAttackTeam();
+	Team& Attacker = homeAttack ? HomeTeam : AwayTeam;
+	Team& Defender = homeAttack ? AwayTeam : HomeTeam;
 
 	int EventRoll = rand() % 100;
 
 	if (EventRoll < 45)
 	{
-		cout << ">> " << Attacker->GetName() << "이(가) 돌파를 시도합니다!" << endl;
+		cout << ">> " << Attacker.GetName() << "이(가) 돌파를 시도합니다!" << endl;
 		GameUtils::WaitMs(1000);
-		Attack(*Attacker, *Defender);
-	}
-	else if (EventRoll < 75)
-	{
-		GameUtils::ClearScreen();
-		cout << ">> " << Defender->GetName() << "의 정확한 태클! 깔끔하게 클리어링 합니다." << endl;
-		Art::DefenceArt();
-		GameUtils::WaitMs(1000);
+		Attack(Attacker, Defender);
+		return;
 	}
 
-	else {
+	if (EventRoll < 60)
+	{
 		GameUtils::ClearScreen();
-		cout << ">> 중원에서 치열한 볼 다툼이 이어집니다..." << endl;
+		cout << ">> " << Defender.GetName() << "의 정확한 태클! 깔끔하게 클리어링 합니다." << endl;
+		Art::DefenceArt();
 		GameUtils::WaitMs(1000);
+		return;
 	}
+
+	if (EventRoll < 80)
+	{
+		GameUtils::ClearScreen();
+		cout << Attacker.GetName() << " 패스 미스..." << endl;
+		GameUtils::WaitMs(1000);
+		return;
+	}
+
+	GameUtils::ClearScreen();
+	cout << ">> 중원에서 치열한 볼 다툼이 이어집니다..." << endl;
+	GameUtils::WaitMs(1000);
 
 	HomeTeam.StaminaLoss();
 	AwayTeam.StaminaLoss();
 
-	if (bIsPlayerMatch)
-	{
-		GameUtils::NextScreen();
-	}
 }
-void Match::Commentary(string message, int WaitTime = 800) {
+void Match::Commentary(string message, int WaitTime = 1000)
+{
 	if (bIsPlayerMatch) {
 		cout << message << endl;
 		GameUtils::WaitMs(WaitTime);
@@ -78,14 +86,16 @@ void Match::Commentary(string message, int WaitTime = 800) {
 
 bool Match::DecideAttackTeam()
 {
-	float HomeMF = (HomeTeam.Stat.Pass * HomeTeam.GetFormation().MF) + (HomeTeam.Stat.Speed * 0.3f);
-	float AwayMF = (AwayTeam.Stat.Pass * AwayTeam.GetFormation().MF) + (AwayTeam.Stat.Speed * 0.3f);
+	float HomePass = HomeTeam.Stat.Pass;
+	float AwayPass = AwayTeam.Stat.Pass;
 
-	float total = HomeMF + AwayMF;
-	if (total <= 0) return rand() % 2 == 0;
+	float total = HomePass + AwayPass;
 
-	float roll = (float)rand() / RAND_MAX;
-	return (roll < (HomeMF / total));
+	if (total <= 0)
+		return rand() % 2 == 0;
+
+	float roll = (float)rand() / RAND_MAX * total;
+	return roll < HomePass;
 }
 
 void Match::Attack(Team& FW, Team& DF)
@@ -95,52 +105,62 @@ void Match::Attack(Team& FW, Team& DF)
 	cout << ">> " << FW.GetName() << " 하프 스페이스 침투!" << endl;
 	GameUtils::WaitMs(1000);
 
-	float FWPower = (FW.Stat.Shoot * FW.GetFormation().FW) + (FW.Stat.Speed * 0.5f);
-	float DFPower = (DF.Stat.Defend * DF.GetFormation().DF) + (DF.Stat.Speed * 0.5f);
-	float roll = (float)rand() / RAND_MAX * (FWPower + DFPower);
+	float atk = (FW.Stat.Shoot * FW.GetFormation().FW + FW.Stat.Speed * FW.GetFormation().FW);
+	float def = (DF.Stat.Defend * DF.GetFormation().DF);
+	float roll = (float)rand() / RAND_MAX * (atk + def);
 
 	if (!bIsPlayerMatch)
 	{
-		if (roll < FWPower)
-		{
+		if (roll < atk)
 			TryShoot(&FW == &HomeTeam);
-		}
-			return;
+		return;
 	}
-	if (roll < FWPower)
+
+	if (roll < atk)
 	{
 		GameUtils::ClearScreen();
 		cout << CurrentMinute << "분" << endl;
-		cout << ">> " << FW.GetName() << "의 " << FW.GetFormation().FW
-			<< "공격진이 수비라인을 허뭅니다!" << endl;
+		cout << ">> " << FW.GetName() << "의 " << "공격진이 수비라인을 허뭅니다!" << endl;
 
 		Art::ShootArt();
 		GameUtils::WaitMs(1000);
 		cout << FW.GetName() << " 상대 골키퍼와 1대1 찬스 슛!!!" << endl;
 		TryShoot(&FW == &HomeTeam);
+
+		return;
 	}
-	else
-	{
-		cout << DF.GetName() << "의 " << DF.GetFormation().DF
-			<< " 슈퍼태클!!!" << endl;
-		Art::DefenceArt();
-		GameUtils::WaitMs(1000);
-	}
+	cout << DF.GetName() << "의 " << " 슈퍼태클!!!" << endl;
+	Art::DefenceArt();
+	GameUtils::WaitMs(1000);
 }
 
-void Match::TryShoot(bool isHomeAttack)
+
+void Match::TryShoot(bool isHome)
 {
 	GameUtils::ClearScreen();
 	PrintScoreboard();
 
-	Team& atkTeam = isHomeAttack ? HomeTeam : AwayTeam;
-	Team& defTeam = isHomeAttack ? AwayTeam : HomeTeam;
+	float atk = isHome ? HomeTeam.Stat.Shoot : AwayTeam.Stat.Shoot;
+	float def = isHome ? AwayTeam.Stat.Defend : HomeTeam.Stat.Defend;
 
-	int xG = (atkTeam.Stat.Shoot > defTeam.Stat.Defend) ? 50 : 30;
+	int xG = (atk > def) ? 80 : 20;
+
+	if (!bIsPlayerMatch)
+	{
+		if (rand() % 100 < xG)
+		{
+			if (isHome) HomeScore++;
+			else AwayScore++;
+		}
+		return;
+	}
+
+	GameUtils::ClearScreen();
+	cout << CurrentMinute << "분" << endl;
 
 	if (rand() % 100 < xG)
 	{
-		if (isHomeAttack)
+		if (isHome)
 		{
 			HomeScore++;
 		}
@@ -169,14 +189,14 @@ void Match::TryShoot(bool isHomeAttack)
 			cout << "골대 맞고 튕겨져 나옵니다!!!" << endl;
 
 		Art::SaveArt();
-		GameUtils::WaitMs(1000);
 	}
-
-	if (bIsPlayerMatch) GameUtils::NextScreen();
+	GameUtils::WaitMs(1000);
 }
 
 Team Match::PlayMatch(int StartTime)
 {
+	CurrentMinute = StartTime;
+
 	if (bIsPlayerMatch)
 	{
 		PrintScoreboard();
@@ -209,7 +229,6 @@ Team Match::PlayMatch(int StartTime)
 		}
 		else
 		{
-
 			Art::DefeatArt();
 			cout << "패배했습니다. 다음 대회까지 365일 남았습니다." << endl;
 		}
@@ -224,7 +243,7 @@ Team Match::PlayMatch(int StartTime)
 
 bool Match::IsDraw()
 {
-	return (HomeScore == AwayScore);
+	return HomeScore == AwayScore;
 }
 
 Team Match::GetWinner()
@@ -243,7 +262,7 @@ void Match::PrintResult()
 {
 	GameUtils::ClearScreen();
 	cout << "\n===== 경기 종료 (Final Score) =====\n";
-	cout << HomeTeam.GetName() << HomeScore << ":" << AwayScore << AwayTeam.GetName() << endl;
+	cout << HomeTeam.GetName()<<" " << HomeScore << " : " << AwayScore<<" " << AwayTeam.GetName() << endl;
 
 	GameUtils::NextScreen();
 }
@@ -253,6 +272,13 @@ void Match::Penalty()
 	int HomePK = 0;
 	int AwayPK = 0;
 
+	if (!bIsPlayerMatch)
+	{
+		if (rand() % 2 == 0) HomeScore++;
+		else AwayScore++;
+		return;
+	}
+
 	if (bIsPlayerMatch) {
 		GameUtils::ClearScreen();
 		cout << "===== [승 부 차 기] 시작 =====" << endl;
@@ -261,39 +287,63 @@ void Match::Penalty()
 
 	for (int i = 0; i < 5; i++)
 	{
-		bool HomeGoal = (rand() % 100 < 75);
-		bool AwayGoal = (rand() % 100 < 70);
+		cout << "[승부차기 " << i + 1 << "번]" << endl;
 
-		if (HomeGoal) HomePK++;
-		if (AwayGoal) AwayPK++;
+		bool homeGoal = rand() % 100 < 75;
+		bool awayGoal = rand() % 100 < 70;
 
-		if (bIsPlayerMatch) {
-			cout << i + 1 << "번 키커: "
-				<< (HomeGoal ? "O " : "X ") << " | " << (AwayGoal ? "O" : "X") << endl;
-			GameUtils::WaitMs(1000);
-		}
+		cout << HomeTeam.GetName()
+			<< (homeGoal ? " 골 성공!" : " 실축...") << endl;
+		GameUtils::WaitMs(1000);
+
+		cout << AwayTeam.GetName()
+			<< (awayGoal ? " 골 성공!" : " 실축...") << endl;
+		GameUtils::WaitMs(1000);
+
+		if (homeGoal) HomePK++;
+		if (awayGoal) AwayPK++;
+
+		cout << "현재 PK 스코어: "
+			<< HomePK << " - " << AwayPK << endl;
+		GameUtils::WaitMs(1000);
 	}
 
 	while (HomePK == AwayPK)
 	{
-		bool HomeGoal = rand() % 100 < 75;
-		bool AwayGoal = rand() % 100 < 70;
+		bool homeGoal = rand() % 100 < 75;
+		bool awayGoal = rand() % 100 < 70;
 
 		cout << HomeTeam.GetName()
-			<< (HomeGoal ? " 골!" : " 실축!") << endl;
+			<< (homeGoal ? " 골!" : " 실축!") << endl;
 		GameUtils::WaitMs(1000);
 
 		cout << AwayTeam.GetName()
-			<< (AwayGoal ? " 골!" : " 실축!") << endl;
+			<< (awayGoal ? " 골!" : " 실축!") << endl;
 		GameUtils::WaitMs(1000);
 
-		if (HomeGoal != AwayGoal)
+		if (homeGoal != awayGoal)
 		{
-			if (HomeGoal) HomePK++;
+			if (homeGoal)  HomePK++;
 			else AwayPK++;
 			break;
 		}
-		GameUtils::NextScreen();
+		cout << "현재 PK 스코어: "
+			<< HomePK << " - " << AwayPK << endl;
+		GameUtils::WaitMs(1000);
+		
 	}
-}
 
+	cout << "===== 승부차기 종료 =====" << endl;
+
+	if (HomePK > AwayPK)
+	{
+		cout << "승부차기 승자: " << HomeTeam.GetName() << endl;
+		HomeScore++;
+	}
+	else
+	{
+		cout << "승부차기 승자: " << AwayTeam.GetName() << endl;
+		AwayScore++;
+	}
+	GameUtils::NextScreen();
+}
