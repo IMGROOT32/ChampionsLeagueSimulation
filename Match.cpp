@@ -86,8 +86,8 @@ void Match::Commentary(string message, int WaitTime = 1000)
 
 bool Match::DecideAttackTeam()
 {
-	float HomePass = HomeTeam.Stat.Pass;
-	float AwayPass = AwayTeam.Stat.Pass;
+	float HomePass = HomeTeam.Stat.Pass * (1.0f + HomeTeam.GetFormation().MF * 0.05f);
+	float AwayPass = AwayTeam.Stat.Pass * (1.0f + AwayTeam.GetFormation().MF * 0.05f);
 
 	float total = HomePass + AwayPass;
 
@@ -105,7 +105,8 @@ void Match::Attack(Team& FW, Team& DF)
 	cout << ">> " << FW.GetName() << " 하프 스페이스 침투!" << endl;
 	GameUtils::WaitMs(1000);
 
-	float atk = (FW.Stat.Shoot * FW.GetFormation().FW + FW.Stat.Speed * FW.GetFormation().FW);
+	float atk = (FW.Stat.Shoot * FW.GetFormation().FW * 1.2f
+		+ FW.Stat.Speed * FW.GetFormation().FW);
 	float def = (DF.Stat.Defend * DF.GetFormation().DF);
 	float roll = (float)rand() / RAND_MAX * (atk + def);
 
@@ -137,15 +138,32 @@ void Match::Attack(Team& FW, Team& DF)
 
 void Match::TryShoot(bool isHome)
 {
+
 	GameUtils::ClearScreen();
 	PrintScoreboard();
 
-	float atk = isHome ? (HomeTeam.Stat.Shoot + HomeTeam.GetFormation().FW) 
-		: (AwayTeam.Stat.Shoot + AwayTeam.GetFormation().FW);
-	float def = isHome ? (AwayTeam.Stat.Defend + AwayTeam.GetFormation().DF) 
-		: (HomeTeam.Stat.Defend + HomeTeam.GetFormation().DF);
+	float atk = isHome 
+		? (HomeTeam.Stat.Shoot * HomeTeam.GetFormation().FW )
+		: (AwayTeam.Stat.Shoot * AwayTeam.GetFormation().FW );
+	float def = isHome 
+		? (AwayTeam.Stat.Defend * AwayTeam.GetFormation().DF) 
+		: (HomeTeam.Stat.Defend * HomeTeam.GetFormation().DF);
 
-	int xG = (atk > def) ? 80 : 20;
+	int ratio = atk / (atk + def);
+
+	float boosted = pow(ratio, 1.3f);
+
+	boosted += (isHome
+		? HomeTeam.GetFormation().FW
+		: AwayTeam.GetFormation().FW) * 0.01f;
+
+	boosted -= (isHome
+		? AwayTeam.GetFormation().DF
+		: HomeTeam.GetFormation().DF) * 0.008f;
+
+	int xG = (int)(boosted * 100);
+
+	xG = max(20, min(90, xG));
 
 	if (!bIsPlayerMatch)
 	{
