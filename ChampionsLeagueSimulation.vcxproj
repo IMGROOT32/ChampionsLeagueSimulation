@@ -123,16 +123,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AISystem.cpp" />
     <ClCompile Include="Art.cpp" />
     <ClCompile Include="CLS.cpp" />
+    <ClCompile Include="DirectionSystem.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameUtils.cpp" />
+    <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Match.cpp" />
     <ClCompile Include="Team.cpp" />
     <ClCompile Include="Tournament.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AISystem.h" />
     <ClInclude Include="Art.h" />
+    <ClInclude Include="DirectionSystem.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="GameUtils.h" />
+    <ClInclude Include="InputSystem.h" />
     <ClInclude Include="Match.h" />
     <ClInclude Include="Team.h" />
     <ClInclude Include="Tournament.h" />

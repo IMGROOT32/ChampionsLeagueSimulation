@@ -33,6 +33,18 @@
     <ClCompile Include="Art.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="DirectionSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="InputSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="AISystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Team.h">
@@ -48,6 +60,18 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Art.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="AISystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

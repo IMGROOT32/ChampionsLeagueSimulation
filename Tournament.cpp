@@ -26,6 +26,9 @@ void Tournament::StartTournament()
 		cout << "\n==============================" << endl;
 		cout << "  " << rounds[r] << " 시작" << endl;
 		cout << "==============================" << endl;
+
+		PrintMatchList();
+
 		GameUtils::NextScreen();
 
 		PlayRound(rounds[r]);
@@ -42,6 +45,21 @@ void Tournament::StartTournament()
 	}
 }
 
+void Tournament::PrintMatchList()
+{
+	cout << "\n===== 대진표 =====" << endl;
+
+	for (int i = 0; i + 1 < Teams.size(); i += 2)
+	{
+		cout << Teams[i].GetName()
+			<< "  vs  "
+			<< Teams[i + 1].GetName()
+			<< endl;
+	}
+
+	cout << "==================" << endl;
+}
+
 void Tournament::PlayRound(string roundName)
 {
 	vector<Team> winners;
@@ -55,7 +73,7 @@ void Tournament::PlayRound(string roundName)
 			(A.GetName() == PlayerName ||
 				B.GetName() == PlayerName);
 
-		Match match(A, B, isPlayerMatch);
+		Match match(A, B, isPlayerMatch, PlayerName);
 		Team winner = match.PlayMatch(5);
 
 		WinnersLog.push_back(

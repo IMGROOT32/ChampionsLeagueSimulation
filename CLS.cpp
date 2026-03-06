@@ -9,6 +9,7 @@
 #include "Tournament.h"
 #include "GameUtils.h"
 #include "Art.h"
+#include "GameManager.h"
 
 using namespace std;
 

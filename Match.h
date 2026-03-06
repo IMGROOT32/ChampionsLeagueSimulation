@@ -1,13 +1,21 @@
 ﻿#pragma once
 #include <iostream>
+#include <string>
 #include "Team.h"
+#include "DirectionSystem.h"
+#include "AISystem.h"
 
 using namespace std;
 
 class Match
 {
-public :
-	Match(Team hometeam, Team awayteam, bool isPlayerMatch);
+private:
+
+	Team HomeTeam;
+	Team AwayTeam;
+
+public:
+	Match(Team hometeam, Team awayteam, bool isPlayerMatch, string playerTeam);
 	Team PlayMatch(int StartTime);
 	
 	bool IsDraw();
@@ -18,7 +26,6 @@ public :
 	int HomeScore;
 	int AwayScore;
 	
-
 	void Attack(Team& FW, Team& DF);
 	void PrintResult();
 	void TryShoot(bool isHome);
@@ -27,12 +34,9 @@ public :
 	void PrintScoreboard();
 	void Commentary(string message, int WaitTime);
 
+	string PlayerName;
+
 	Team Winner;
 	Team GetWinner();
-
-private :
-	Team HomeTeam;
-	Team AwayTeam;
-
 };
 
